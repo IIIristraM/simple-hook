@@ -1,0 +1,7 @@
+FROM alpine:latest
+
+RUN apk add --update npm curl && \
+    node -v && \
+    npm -v
+
+COPY ./scripts /
