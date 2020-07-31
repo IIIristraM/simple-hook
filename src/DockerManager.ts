@@ -1,6 +1,7 @@
 import { WebhookEvent } from './types/webhook';
 import { runImage, removeContainer } from './utils/docker';
 import { logger } from './utils/logger';
+import { createQueue } from './utils/queue';
 
 export type ContainerInfo = {
     id: string;
@@ -10,11 +11,7 @@ export type ContainerInfo = {
 export type RunArgs = [string, WebhookEvent, number];
 
 const CONTAINERS: Record<string, ContainerInfo> = {}
-const CONCURRENT_CONTAINERS_LIMIT = 10;
-const QUEUE: RunArgs[] = [];
 const CONTAINER_RESOLVERS: Record<string, {resolve: Function, reject: Function}> = {}
-
-let EXECUTION_PROMISE: Promise<void> | undefined | null;
 
 export function getOrRegisterContainer(containerId: string) {
     return CONTAINERS[containerId] = CONTAINERS[containerId] || {
@@ -32,38 +29,19 @@ export async function destroyContainer(containerId: string) {
     delete CONTAINER_RESOLVERS[containerId];
 }
 
-export function tryExecute() {
-    EXECUTION_PROMISE = EXECUTION_PROMISE || executeQueue().finally(() => {
-        EXECUTION_PROMISE = null
-        logger.info('All containers have been complete')
-    })
+const queue = createQueue<RunArgs>({
+    createTask: async runArgs => {
+        const id = await runImage(...runArgs)
 
-    return EXECUTION_PROMISE;
-}
-
-export async function executeQueue() {
-    while (QUEUE.length) {
-        const runningPromises = Object.values(CONTAINERS).map(({promise}) => promise);
-
-        const freeQuotas = Math.max(0, CONCURRENT_CONTAINERS_LIMIT - runningPromises.length)
-        if (freeQuotas === 0) {
-            await Promise.race(runningPromises)
-        }
-
-        const items = QUEUE.splice(0, freeQuotas);
-
-        await Promise.all(items.map(async runArgs => {
-            const id = await runImage(...runArgs)
-
-            logger.info('Container running', id);
-            getOrRegisterContainer(id);
-        }))
+        logger.info('Container running', id);
+        return {
+            done: getOrRegisterContainer(id).promise
+        };
     }
-}
+});
 
 export function run(...args: RunArgs) {
-    QUEUE.push(args);
-    tryExecute();
+    queue.push(args);
 } 
 
 export async function complete(containerId: string) {
