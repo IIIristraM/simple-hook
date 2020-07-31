@@ -7,12 +7,10 @@ export const createBuildCommand = (
     const buildCommandParts = [
         'docker build',
         cache ? null : '--no-cache',
-        ...Object.entries(args).map(([key, value]) => (
-            `--build-arg ${key}='${value}'`
-        )),
+        ...Object.entries(args).map(([key, value]) => `--build-arg ${key}='${value}'`),
         `--tag ${tag}`,
         `-f ${config}`,
-        '.'
+        '.',
     ];
 
     return buildCommandParts.filter(Boolean).join(' ');
@@ -31,11 +29,11 @@ export function createRemoveContainerCommand(containerId: string) {
 }
 
 export async function buildBaseImage() {
-    const tag = 'simple-hook/base'
+    const tag = 'simple-hook/base';
     const buildCommand = createBuildCommand(tag, './Dockerfile.base', {}, true);
 
     await runCommand(buildCommand, {
-        env: process.env
+        env: process.env,
     });
 
     return tag;
@@ -43,22 +41,22 @@ export async function buildBaseImage() {
 
 export async function runImage(tag: string, event: WebhookEvent, port: number): Promise<string> {
     const id = await runCommand(createRunImageCommand(tag, event, port), {
-        env: process.env
+        env: process.env,
     });
 
-    return id.trim()
-};
+    return id.trim();
+}
 
 export async function removeImage(tag: string): Promise<string> {
     return await runCommand(createRemoveImageCommand(tag), {
-        env: process.env
+        env: process.env,
     });
-};
+}
 
 export async function removeContainer(containerId: string): Promise<unknown> {
     return await runCommand(createRemoveContainerCommand(containerId), {
-        env: process.env
+        env: process.env,
     }).catch(err => {
         // если контейнер уже сам инициировал удаление
     });
-};
+}
