@@ -1,7 +1,0 @@
-FROM simple-hook/base:latest
-
-ARG EVENT
-
-RUN echo "$EVENT" > ./event.json
-
-CMD ["sh", "-c", "./instance.sh"]

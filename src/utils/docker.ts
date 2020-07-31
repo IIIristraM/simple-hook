@@ -1,5 +1,3 @@
-import {v4} from 'uuid';
-
 import { runCommand } from './common';
 import { WebhookEvent } from '../types/webhook';
 
@@ -20,41 +18,21 @@ export const createBuildCommand = (
     return buildCommandParts.filter(Boolean).join(' ');
 };
 
-export function createRunImageCommand(...[tag]: [string]) {
-    const buildCommandParts = [
-        'docker run',
-        '--rm',
-        '-d',
-        tag
-    ];
-
-    return buildCommandParts.filter(Boolean).join(' ');
+export function createRunImageCommand(...[tag, event, port]: [string, WebhookEvent, number]) {
+    return `docker run --rm -d ${tag} '${JSON.stringify(event)}' ${port}`;
 }
 
 export function createRemoveImageCommand(...[tag]: [string]) {
-    const buildCommandParts = [
-        'docker rmi',
-        '-f',
-        `${tag}:latest`
-    ];
+    return `docker rmi -f ${tag}:latest`;
+}
 
-    return buildCommandParts.filter(Boolean).join(' ');
+export function createRemoveContainerCommand(containerId: string) {
+    return `docker rm -f ${containerId}`;
 }
 
 export async function buildBaseImage() {
-    const buildCommand = createBuildCommand('simple-hook/base', './Dockerfile.base', {}, true);
-
-    await runCommand(buildCommand, {
-        env: process.env
-    });
-}
-
-export async function buildInstanceImage(event: WebhookEvent) {
-    const tag = [event.repository?.name, v4()].filter(Boolean).join('_');
-
-    const buildCommand = createBuildCommand(tag, 'Dockerfile.instance', {
-        EVENT: JSON.stringify(event)
-    }, false);
+    const tag = 'simple-hook/base'
+    const buildCommand = createBuildCommand(tag, './Dockerfile.base', {}, true);
 
     await runCommand(buildCommand, {
         env: process.env
@@ -63,8 +41,8 @@ export async function buildInstanceImage(event: WebhookEvent) {
     return tag;
 }
 
-export async function runImage(tag: string): Promise<string> {
-    const id = await runCommand(createRunImageCommand(tag), {
+export async function runImage(tag: string, event: WebhookEvent, port: number): Promise<string> {
+    const id = await runCommand(createRunImageCommand(tag, event, port), {
         env: process.env
     });
 
@@ -74,5 +52,13 @@ export async function runImage(tag: string): Promise<string> {
 export async function removeImage(tag: string): Promise<string> {
     return await runCommand(createRemoveImageCommand(tag), {
         env: process.env
+    });
+};
+
+export async function removeContainer(containerId: string): Promise<unknown> {
+    return await runCommand(createRemoveContainerCommand(containerId), {
+        env: process.env
+    }).catch(err => {
+        // если контейнер уже сам инициировал удаление
     });
 };

@@ -1,27 +1,21 @@
-import { buildBaseImage, buildInstanceImage, runImage, removeImage } from '../docker'
-
-test('buildBaseImage', async () => {
-    await buildBaseImage();
-}, 20000)
+import { buildBaseImage, runImage, removeImage } from '../docker'
 
 let tag: string;
 let id: string;
 
-test('buildInstanceImage', async () => {
-    tag = await buildInstanceImage({
+test('buildBaseImage', async () => {
+    tag = await buildBaseImage();
+}, 20000)
+
+test('runImage', async () => {
+    id = await runImage(tag, {
         repository: {
             name: 'test'
         },
         pull_request: {
-            body: '<div></div>'
+            body: '"<div></div>"'
         }
-    } as any);
-
-    expect(typeof tag === 'string');
-}, 20000)
-
-test('runImage', async () => {
-    id = await runImage(tag);
+    } as any, 8001);
 
     expect(typeof id === 'string');
 }, 20000)

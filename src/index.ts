@@ -2,23 +2,21 @@ import express from 'express';
 import bodyParser from 'body-parser';
 
 import { logger } from './utils/logger';
-import { buildBaseImage, buildInstanceImage, runImage, removeImage } from './utils/docker';
+import { buildBaseImage } from './utils/docker';
+import { CONTAINER_ID_HEADER } from './consts';
+import { run, complete } from './DockerManager';
 
-const RUNNING_CONTAINERS: Record<string, string> = {}
+const PORT = 8000;
 
 async function main() {
-    await buildBaseImage()
+    const tag = await buildBaseImage()
 
     const app = express();
     app.use(bodyParser.json());
 
     app.post('/run', async (req, res) => {
         try {
-            const tag = await buildInstanceImage(req.body)
-            const id = await runImage(tag);
-
-            logger.info('Hook in process in container', id);
-            RUNNING_CONTAINERS[id] = tag;
+            run(tag, req.body, PORT)
             res.sendStatus(200);
         } catch {
             res.sendStatus(500)
@@ -27,25 +25,23 @@ async function main() {
 
     app.post('/complete', async (req, res) => {
         try {
-            logger.info('Complete...', req.headers, req.body)
-
-            const containerId = req.headers['container-id'];
-            if (!containerId || typeof containerId !== 'string' || !RUNNING_CONTAINERS[containerId]) {
-                logger.warn('Unexpected container id:', containerId);
-            } else {
-                const tag = RUNNING_CONTAINERS[containerId];
-                await removeImage(tag);
-                delete RUNNING_CONTAINERS[containerId];
-                logger.info('Container complete work', containerId)
+            // logger.info('Complete...', req.headers, req.body?.action)
+            const containerId = req.headers[CONTAINER_ID_HEADER];
+            if (typeof containerId !== 'string') {
+                res.status(400).send({
+                    message: `Bad ${CONTAINER_ID_HEADER} header`
+                })
+                return
             }
-
+            
+            complete(containerId)
             res.sendStatus(200);
         } catch {
             res.sendStatus(500)
         }
     })
 
-    app.listen(8000, () => {
+    app.listen(PORT, () => {
         logger.info('Server listening...')
     })
 }

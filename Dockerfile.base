@@ -5,3 +5,5 @@ RUN apk add --update npm curl && \
     npm -v
 
 COPY ./scripts /
+
+ENTRYPOINT ["sh", "./instance.sh"]
