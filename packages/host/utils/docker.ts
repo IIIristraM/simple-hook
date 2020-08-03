@@ -1,5 +1,4 @@
 import { runCommand } from '../../common/shell';
-import { WebhookEvent } from '../../types/webhook';
 import { ROOT } from '../consts';
 
 export const createBuildCommand = (...[tag, args, cache]: [string, Record<string, string>, boolean]) => {
@@ -15,8 +14,8 @@ export const createBuildCommand = (...[tag, args, cache]: [string, Record<string
     return buildCommandParts.filter(Boolean).join(' ');
 };
 
-export function createRunImageCommand(...[tag, event, port]: [string, WebhookEvent, number]) {
-    return `docker run --rm -d ${tag} '${JSON.stringify(event)}' ${port}`;
+export function createRunImageCommand(...[tag, data, port]: [string, unknown, number]) {
+    return `docker run --rm -d ${tag} '${JSON.stringify(data)}' ${port}`;
 }
 
 export function createRemoveImageCommand(...[tag]: [string]) {
@@ -38,8 +37,8 @@ export async function buildBaseImage() {
     return tag;
 }
 
-export async function runImage(tag: string, event: WebhookEvent, port: number): Promise<string> {
-    const id = await runCommand(createRunImageCommand(tag, event, port), {
+export async function runImage(tag: string, data: unknown, port: number): Promise<string> {
+    const id = await runCommand(createRunImageCommand(tag, data, port), {
         env: process.env,
     });
 

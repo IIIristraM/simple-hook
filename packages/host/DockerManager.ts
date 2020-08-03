@@ -1,4 +1,4 @@
-import { WebhookEvent } from '../types/webhook';
+import { Event } from '../types/communication';
 import { runImage, removeContainer } from './utils/docker';
 import { logger } from '../common/logger';
 import { createQueue } from './utils/queue';
@@ -8,7 +8,7 @@ export type ContainerInfo = {
     promise: Promise<unknown>;
 };
 
-export type RunArgs = [string, WebhookEvent, number];
+export type RunArgs = [string, Event, number];
 
 const CONTAINERS: Record<string, ContainerInfo> = {};
 const CONTAINER_RESOLVERS: Record<string, { resolve: Function; reject: Function }> = {};

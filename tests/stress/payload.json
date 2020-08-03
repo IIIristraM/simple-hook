@@ -3,5 +3,10 @@
         "name": "simple-hook-test",
         "default_branch": "master",
         "git_url": "https://github.com/IIIristraM/simple-hook-test.git"
+    },
+    "pull_request": {
+        "head": {
+            "ref": "config"
+        }
     }
 }

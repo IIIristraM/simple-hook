@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { WebhookEvent, WebhookPullRequestEvent } from '../types/webhook';
-import { Message } from '../types/communication';
+import { Message, Event } from '../types/communication';
 import { cloneBranch } from './git';
 
 const [, , cid, eventStr, port] = [...process.argv];
@@ -37,10 +37,21 @@ function report(message: Message<any>) {
 }
 
 async function main() {
-    const event: WebhookEvent = JSON.parse(eventStr);
-    const { git_url } = event.repository;
+    const event: Event = JSON.parse(eventStr);
+    const { type, payload } = event;
+    const {
+        repository: { git_url, name: repoName },
+    } = payload;
 
-    const branch = getBranch(event);
+    report({
+        type: 'info',
+        data: {
+            step: 'event parsed',
+            type,
+        },
+    });
+
+    const branch = getBranch(event.payload);
     await cloneBranch(git_url, branch, REPO_PATH);
 
     report({
@@ -48,7 +59,7 @@ async function main() {
         data: {
             step: 'checkout',
             branch,
-            content: fs.readdirSync(`${REPO_PATH}/${event.repository.name}`),
+            content: fs.readdirSync(`${REPO_PATH}/${repoName}`),
         },
     });
 

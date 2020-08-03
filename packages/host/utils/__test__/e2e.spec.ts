@@ -45,11 +45,18 @@ describe('docker to node', () => {
                     server = app.listen(TEST_PORT, resolve);
                 });
 
-                id = await runImage(tag, event as any, TEST_PORT);
+                id = await runImage(
+                    tag,
+                    {
+                        type: 'pull_request',
+                        payload: event,
+                    },
+                    TEST_PORT,
+                );
             });
 
             expect(result.body.type).toEqual('complete');
-            expect(result.body.data).toEqual(event);
+            expect(result.body.data).toEqual('success');
             expect(result.headers[CONTAINER_ID_HEADER]).toBe(id);
         } finally {
             server?.close();
