@@ -39,3 +39,8 @@ export type WebhookEvent =
     | Webhooks.WebhookPayloadFork
     | Webhooks.WebhookPayloadGollum
     | Webhooks.WebhookPayloadIssueComment;
+
+export type WebhookPullRequestEvent =
+    | Webhooks.WebhookPayloadPullRequestReviewComment
+    | Webhooks.WebhookPayloadPullRequestReview
+    | Webhooks.WebhookPayloadPullRequest;

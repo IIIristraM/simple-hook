@@ -5,16 +5,13 @@
         "module": "commonjs",
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "baseUrl": ".",
-        "outDir": "dist",
         "noUnusedLocals": true,
         "noImplicitAny": true,
         "strictBindCallApply": true,
-        "declaration": true,
+        "declaration": false,
         "declarationMap": false,
         "downlevelIteration": true,
         "strictNullChecks": true,
-        "importHelpers": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "skipDefaultLibCheck": true,
@@ -23,11 +20,5 @@
             "node",
             "jest"
         ]
-    },
-    "include": [
-        "src"
-    ],
-    "exclude": [
-        "**/__test__/**"
-    ]
+    }
 }

@@ -1,6 +1,6 @@
-import { WebhookEvent } from './types/webhook';
+import { WebhookEvent } from '../types/webhook';
 import { runImage, removeContainer } from './utils/docker';
-import { logger } from './utils/logger';
+import { logger } from '../common/logger';
 import { createQueue } from './utils/queue';
 
 export type ContainerInfo = {

@@ -1,6 +1,6 @@
 ab \
-    -n 500 \
-    -c 100 \
+    -n 50 \
+    -c 10 \
     -T 'application/json' \
-    -p './node_modules/@octokit/webhooks/test/fixtures/installation-created-payload.json' \
+    -p './tests/stress/payload.json' \
     http://localhost:8000/run

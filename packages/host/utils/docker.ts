@@ -1,16 +1,15 @@
-import { runCommand } from './common';
-import { WebhookEvent } from '../types/webhook';
+import { runCommand } from '../../common/shell';
+import { WebhookEvent } from '../../types/webhook';
+import { ROOT } from '../consts';
 
-export const createBuildCommand = (
-    ...[tag, config, args, cache]: [string, string, Record<string, string>, boolean]
-) => {
+export const createBuildCommand = (...[tag, args, cache]: [string, Record<string, string>, boolean]) => {
     const buildCommandParts = [
         'docker build',
         cache ? null : '--no-cache',
         ...Object.entries(args).map(([key, value]) => `--build-arg ${key}='${value}'`),
         `--tag ${tag}`,
-        `-f ${config}`,
-        '.',
+        `-f ${ROOT}/Dockerfile`,
+        ROOT,
     ];
 
     return buildCommandParts.filter(Boolean).join(' ');
@@ -30,7 +29,7 @@ export function createRemoveContainerCommand(containerId: string) {
 
 export async function buildBaseImage() {
     const tag = 'simple-hook/base';
-    const buildCommand = createBuildCommand(tag, './Dockerfile.base', {}, true);
+    const buildCommand = createBuildCommand(tag, {}, true);
 
     await runCommand(buildCommand, {
         env: process.env,

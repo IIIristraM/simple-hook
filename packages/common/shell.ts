@@ -1,5 +1,7 @@
 import { exec, ExecOptions } from 'child_process';
 
+import { logger } from './logger';
+
 const MAX_BUFFER_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const runCommand = (command: string, options: ExecOptions = {}) => {
@@ -8,6 +10,8 @@ export const runCommand = (command: string, options: ExecOptions = {}) => {
         execArgv: ['--max-old-space-size=4096'],
         ...options,
     };
+
+    logger.info('Running...', command.length > 200 ? `${command.slice(0, 100)}...` : command);
 
     return new Promise<string>((resolve, reject) => {
         const child = exec(command, commandOptions, (error, stdout, stderr) => {

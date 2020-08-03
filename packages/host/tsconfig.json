@@ -1,0 +1,11 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "../../dist",
+        "importHelpers": true,
+    },
+    "exclude": [
+        "**/__test__/**"
+    ]
+}
