@@ -27,7 +27,6 @@ export async function downloadConfig(event: WebhookEvent): Promise<WebhooksConfi
     const branch = getBranch(event);
 
     const configStr = await downloadFile(createDownloadUrl(git_url, branch, 'simple-hook.json'));
-    console.log(replaceParams(configStr, event));
     return JSON.parse(replaceParams(configStr, event));
 }
 

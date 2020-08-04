@@ -1,6 +1,6 @@
 import { logger } from '../../common/logger';
 
-const CONCURRENT_LIMIT = 15;
+const CONCURRENT_LIMIT = 3;
 
 export function createQueue<Q>({
     createTask,
