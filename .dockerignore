@@ -1,3 +1,4 @@
 *
 !./node_modules/lodash
+!./node_modules/tslib
 !./dist

@@ -2,8 +2,7 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "baseUrl": ".",
-        "outDir": "../../dist",
-        "importHelpers": true,
+        "outDir": "../../dist"
     },
     "exclude": [
         "**/__test__/**"

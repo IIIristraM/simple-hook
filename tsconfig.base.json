@@ -15,6 +15,7 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "skipDefaultLibCheck": true,
+        "importHelpers": true,
         "allowJs": true,
         "types": [
             "node",
