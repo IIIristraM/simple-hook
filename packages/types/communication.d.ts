@@ -1,4 +1,4 @@
-import { WebhookEvent } from './webhook';
+import { WebhookEvent, WebhookJob } from './webhook';
 
 export type Message<T> = {
     type: 'info' | 'complete';
@@ -8,4 +8,9 @@ export type Message<T> = {
 export type Event = {
     type: string;
     payload: WebhookEvent;
+};
+
+export type ContainerData = {
+    job: WebhookJob;
+    event: Event;
 };

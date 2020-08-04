@@ -3,3 +3,4 @@ dist
 packages/**/*.js
 package-lock.json
 **/test-repo
+**/private/**

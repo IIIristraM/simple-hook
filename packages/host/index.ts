@@ -1,11 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import { logger } from '../common/logger';
 import { buildBaseImage } from './utils/docker';
 import { CONTAINER_ID_HEADER, GITHUB_EVENT_HEADER } from './consts';
 import { run, complete } from './DockerManager';
 import { Message } from '../types/communication';
+import { downloadConfig, logger } from '../common';
 
 const PORT = 8000;
 
@@ -25,7 +25,23 @@ async function main() {
                 return;
             }
 
-            run(tag, { type, payload: req.body }, PORT);
+            const config = await downloadConfig(req.body);
+            const jobs = config?.jobs?.filter(job =>
+                job.events.some(event => {
+                    return event.id === type && (!event.actions || event.actions.includes(req.body.action));
+                }),
+            );
+
+            if (!jobs?.length) {
+                res.status(400).send({
+                    message: `No jobs configured`,
+                });
+                return;
+            }
+
+            jobs.forEach(job => {
+                run(tag, { job, event: { type, payload: req.body } }, PORT);
+            });
             res.sendStatus(200);
         } catch {
             res.sendStatus(500);

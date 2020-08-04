@@ -1,4 +1,5 @@
 {
+    "action": "edit",
     "repository": {
         "name": "simple-hook-test",
         "default_branch": "master",

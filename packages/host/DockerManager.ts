@@ -1,4 +1,4 @@
-import { Event } from '../types/communication';
+import { ContainerData } from '../types';
 import { runImage, removeContainer } from './utils/docker';
 import { logger } from '../common/logger';
 import { createQueue } from './utils/queue';
@@ -8,7 +8,7 @@ export type ContainerInfo = {
     promise: Promise<unknown>;
 };
 
-export type RunArgs = [string, Event, number];
+export type RunArgs = [string, ContainerData, number];
 
 const CONTAINERS: Record<string, ContainerInfo> = {};
 const CONTAINER_RESOLVERS: Record<string, { resolve: Function; reject: Function }> = {};

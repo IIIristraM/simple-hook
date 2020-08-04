@@ -6,7 +6,7 @@ import { Webhooks } from '@octokit/webhooks';
 import { buildBaseImage, runImage } from '../docker';
 import { CONTAINER_ID_HEADER } from '../../consts';
 import { DeepPartial } from '../../../types/helpers';
-import { logger } from '../../../common/logger';
+import { logger, downloadConfig } from '../../../common';
 
 const TEST_PORT = 8002;
 const app = express();
@@ -17,7 +17,7 @@ describe('docker to node', () => {
 
     beforeAll(async () => {
         tag = await buildBaseImage();
-    }, 40000);
+    }, 100000);
 
     test('image respond', async () => {
         let server: Server | undefined;
@@ -28,7 +28,14 @@ describe('docker to node', () => {
                 git_url: 'https://github.com/IIIristraM/simple-hook-test.git',
                 default_branch: 'master',
             },
+            pull_request: {
+                head: {
+                    ref: 'config',
+                },
+            },
         };
+
+        const config = await downloadConfig(event as any);
 
         try {
             const result = await new Promise<Request>(async resolve => {
@@ -48,15 +55,23 @@ describe('docker to node', () => {
                 id = await runImage(
                     tag,
                     {
-                        type: 'pull_request',
-                        payload: event,
+                        job: config.jobs[0],
+                        event: {
+                            type: 'pull_request',
+                            payload: event,
+                        },
                     },
                     TEST_PORT,
                 );
             });
 
+            const { executionTime, ...rest } = result.body.data;
+
             expect(result.body.type).toEqual('complete');
-            expect(result.body.data).toEqual('success');
+            expect(rest).toEqual({
+                status: 'success',
+                stdout: 'Hello world from simple-hook-test',
+            });
             expect(result.headers[CONTAINER_ID_HEADER]).toBe(id);
         } finally {
             server?.close();

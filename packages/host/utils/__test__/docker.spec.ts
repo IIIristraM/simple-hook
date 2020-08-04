@@ -25,7 +25,7 @@ test('runImage', async () => {
         },
     };
 
-    id = await runImage(tag, event as any, 8001);
+    id = await runImage(tag, { event: event as any }, 8001);
 
     expect(typeof id === 'string');
 }, 20000);

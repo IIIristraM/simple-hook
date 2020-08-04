@@ -15,7 +15,7 @@ export const runCommand = (command: string, options: ExecOptions = {}) => {
 
     return new Promise<string>((resolve, reject) => {
         const child = exec(command, commandOptions, (error, stdout, stderr) => {
-            return error ? reject(error) : resolve(stdout);
+            return error ? reject(error) : resolve(stdout.trim());
         });
 
         child.stdout?.pipe(process.stdout);
