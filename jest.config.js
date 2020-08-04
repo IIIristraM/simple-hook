@@ -3,8 +3,9 @@ module.exports = {
     testEnvironment: 'node',
     globals: {
         'ts-jest': {
-            isolatedModules: true
-        }
+            tsconfig: './tsconfig.base.json',
+            isolatedModules: true,
+        },
     },
     // setupFilesAfterEnv: ["<rootDir>/__test__/setup.js"],
 };
